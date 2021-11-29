@@ -5,12 +5,12 @@ import pymysql
 
 class EasyMySQL():
     # 初始化
-    def __init__(self, host, port, user, passwd, dbName):
+    def __init__(self, host, port, user, passwd, db):
         self.host = host
         self.port = port
         self.user = user
         self.passwd = passwd
-        self.dbName = dbName
+        self.db = db
 
     # 连接数据库，需要传数据库地址、用户名、密码、数据库名称，默认设置了编码信息
     def connect(self):
@@ -20,7 +20,7 @@ class EasyMySQL():
                 port=self.port,
                 user=self.user,
                 password=self.passwd,
-                database=self.dbName,
+                database=self.db,
                 use_unicode=True,
                 charset='utf8mb4'
             )
@@ -61,19 +61,19 @@ class EasyMySQL():
         return res
 
     # 查询数据库对象
-    def get_all_obj(self, sql, tableName, *args):
-        resList = []
-        fieldsList = []
+    def get_all_obj(self, sql, table_name, *args):
+        res_list = []
+        fields_list = []
         try:
             if (len(args) > 0):
                 for item in args:
-                    fieldsList.append(item)
+                    fields_list.append(item)
             else:
-                fieldsSql = "select COLUMN_NAME from information_schema.COLUMNS where table_name = '%s' and table_schema = '%s'" % (
-                    tableName, self.dbName)
-                fields = self.get_all(fieldsSql)
+                fields_sql = "select COLUMN_NAME from information_schema.COLUMNS where table_name = '%s' and table_schema = '%s'" % (
+                    table_name, self.db)
+                fields = self.get_all(fields_sql)
                 for item in fields:
-                    fieldsList.append(item[0])
+                    fields_list.append(item[0])
 
             # 执行查询数据sql
             res = self.get_all(sql)
@@ -81,10 +81,10 @@ class EasyMySQL():
                 obj = {}
                 count = 0
                 for x in item:
-                    obj[fieldsList[count]] = x
+                    obj[fields_list[count]] = x
                     count += 1
-                resList.append(obj)
-            return resList
+                res_list.append(obj)
+            return res_list
         except Exception as e:
             return e
 
@@ -104,9 +104,9 @@ class EasyMySQL():
             self.connect()
             count = self.cursor.execute(sql)
             self.db.commit()
-            self.close()
         except Exception as e:
             print(e)
             self.db.rollback()
             count = 0
+            self.close()
         return count
