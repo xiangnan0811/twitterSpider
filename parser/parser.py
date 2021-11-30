@@ -1,3 +1,4 @@
+import re
 from typing import Tuple
 from datetime import datetime
 
@@ -64,3 +65,48 @@ def get_user_item(data: dict) -> Tuple[dict, str]:
         'screen_name': screen_name,
         'statuses_count': statuses_count,
     }, user_id
+
+
+def get_tweets(data):
+    """
+    解析用户的推文信息
+    """
+    tweets = []
+    instructions = data.get('data', {}).get('user', {}).get('result', {}).get('timeline', {}).get('timeline', {}).get('instructions', {})
+    if instructions and isinstance(instructions, list) and instructions[0]:
+        tweets = instructions[0].get("entries", [])
+    for tweet in tweets:
+        tweet_result = tweet.get('content', {}).get('itemContent', {}).get('tweet_results', {}).get('result', {})
+        legacy = tweet_result.get('legacy', {})
+        tweet_id = legacy.get("id_str", '')
+        if not tweet_id:
+            continue
+        user_id = legacy.get("user_id_str", '')
+        full_text = legacy.get("full_text", '').replace("'", r"\'").replace('"', r'\"')
+        favorite_count = legacy.get("favorite_count", '0')
+        lang = legacy.get("lang", '').replace("'", r"\'").replace('"', r'\"')
+        source = legacy.get("source", '').replace("'", r"\'").replace('"', r'\"')
+        if source:
+            source = re.findall(r'follow">(.*?)</a>', source)
+            if source:
+                source = source[0]
+        quote_count = legacy.get("quote_count", '0')
+        reply_count = legacy.get("reply_count", '0')
+        retweet_count = legacy.get("retweet_count", '0')
+        quoted_tweet_id = legacy.get("quoted_status_id_str", '0')
+        created_at = legacy.get("created_at", 0)
+        if created_at:
+            created_at = int(datetime.strptime(created_at, "%a %b %d %H:%M:%S %z %Y").timestamp())
+        yield {
+            'id': tweet_id,
+            'user_id': user_id,
+            'full_text': full_text,
+            'favorite_count': favorite_count,
+            'lang': lang,
+            'source': source,
+            'quote_count': quote_count,
+            'reply_count': reply_count,
+            'retweet_count': retweet_count,
+            'quoted_tweet_id': quoted_tweet_id,
+            'created_at': created_at,
+        }

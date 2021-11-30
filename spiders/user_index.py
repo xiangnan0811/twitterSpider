@@ -12,7 +12,8 @@ sys.path.insert(0, BASE_DIR)
 
 from db.concatSQL import get_insert_and_update_sql
 from db.easyMySQL import EasyMySQL
-from parser.parser import get_user_item
+from parser.parser import get_user_item, get_tweets
+from spiders.user_tweets import get_user_tweets
 
 
 def get_token(screen_name, session, proxies):
@@ -53,7 +54,7 @@ def get_resp_json(resp):
     try:
         return json.loads(resp.text)
     except json.decoder.JSONDecodeError:
-        return None
+        return {}
 
 
 def main(screen_name, mysql_connection, proxies):
@@ -69,8 +70,16 @@ def main(screen_name, mysql_connection, proxies):
     if user:
         user_sql = get_insert_and_update_sql(user, 'twitter', 'user')
         user_result = mysql_connection.insert(user_sql)
-        print(user_result)
         print('*' * 100)
+        print(f'用户 {user["name"]} 入库结果：{user_result}')
+        tweet_resp = get_user_tweets(user_id, token, session, proxies, count=200)
+        tweet_data = get_resp_json(tweet_resp)
+        for tweet in get_tweets(tweet_data):
+            if tweet:
+                tweet_sql = get_insert_and_update_sql(tweet, 'twitter', 'tweet')
+                tweet_result = mysql_connection.insert(tweet_sql)
+                print(f'推文 {tweet["id"]} 入库结果：{tweet_result}')
+                print('-' * 100)
 
 
 if __name__ == '__main__':
