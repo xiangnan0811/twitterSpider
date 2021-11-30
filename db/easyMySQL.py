@@ -1,9 +1,7 @@
-#encoding: utf-8
-
 import pymysql
 
 
-class EasyMySQL():
+class EasyMySQL:
     # 初始化
     def __init__(self, host, port, user, passwd, database):
         self.host = host
@@ -22,7 +20,7 @@ class EasyMySQL():
                 password=self.passwd,
                 database=self.database,
                 use_unicode=True,
-                charset='utf8mb4'
+                charset='utf8mb4',
             )
             self.cursor = self.conn.cursor()
         except Exception as e:
@@ -65,12 +63,14 @@ class EasyMySQL():
         res_list = []
         fields_list = []
         try:
-            if (len(args) > 0):
+            if len(args) > 0:
                 for item in args:
                     fields_list.append(item)
             else:
-                fields_sql = "select COLUMN_NAME from information_schema.COLUMNS where table_name = '%s' and table_schema = '%s'" % (
-                    table_name, self.conn)
+                fields_sql = (
+                    "select COLUMN_NAME from information_schema.COLUMNS where table_name = '%s' and table_schema = '%s'"
+                    % (table_name, self.conn)
+                )
                 fields = self.get_all(fields_sql)
                 for item in fields:
                     fields_list.append(item[0])

@@ -1,6 +1,5 @@
 import os
 import sys
-import re
 import json
 import requests
 from urllib.parse import quote
@@ -15,9 +14,7 @@ from utils.common import get_token
 
 
 def get_user_tweets(user_id, token, session, proxies, count=2000):
-    """
-    获取指定用户的指定数量的推文信息
-    """
+    """获取指定用户的指定数量的推文信息."""
     params = {
         'userId': user_id,
         'count': count,
@@ -43,9 +40,7 @@ def get_user_tweets(user_id, token, session, proxies, count=2000):
 
 
 def main(user_id, mysql_connection, count=2000):
-    """
-    主函数
-    """
+    """主函数."""
     proxies = {
         'http': 'http://127.0.0.1:7890',
         'https': 'http://127.0.0.1:7890',

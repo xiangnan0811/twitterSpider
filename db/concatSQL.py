@@ -1,6 +1,6 @@
 def get_insert_and_update_sql(data, db, table, not_update_key: str = ''):
-    """
-    以 data 的字段信息组装插入或更新 sql
+    """以 data 的字段信息组装插入或更新 sql.
+
     :param data:               入库数据
     :param db:                 入库数据库名
     :param table:              入库表名
@@ -23,8 +23,8 @@ def get_insert_and_update_sql(data, db, table, not_update_key: str = ''):
 
 
 def get_insert_ignore_sql(fields, table):
-    """
-    以 item 字段组装插入sql
+    """以 item 字段组装插入sql.
+
     :param fields:             item对应的字段 默认不包含 item_type 字段
     :param table:              入库表名
     :return:                   组装成的sql

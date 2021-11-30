@@ -4,9 +4,7 @@ from datetime import datetime
 
 
 def get_user_item(data: dict) -> Tuple[dict, str]:
-    """
-    自用户首页响应中解析用户信息，并返回用户信息字典及用户ID
-    """
+    """自用户首页响应中解析用户信息，并返回用户信息字典及用户ID."""
     user = data.get('data', {}).get('user', {}).get('result', {})
     # twitter 返回的用户ID，纯数字
     user_id = user.get("rest_id", '')
@@ -68,9 +66,7 @@ def get_user_item(data: dict) -> Tuple[dict, str]:
 
 
 def get_tweets(data):
-    """
-    解析用户的推文信息
-    """
+    """解析用户的推文信息."""
     tweets = []
     instructions = data.get('data', {}).get('user', {}).get('result', {}).get('timeline', {}).get('timeline', {}).get('instructions', {})
     if instructions and isinstance(instructions, list) and instructions[0]:
