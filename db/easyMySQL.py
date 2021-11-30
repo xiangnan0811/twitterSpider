@@ -5,26 +5,26 @@ import pymysql
 
 class EasyMySQL():
     # 初始化
-    def __init__(self, host, port, user, passwd, db):
+    def __init__(self, host, port, user, passwd, database):
         self.host = host
         self.port = port
         self.user = user
         self.passwd = passwd
-        self.db = db
+        self.database = database
 
     # 连接数据库，需要传数据库地址、用户名、密码、数据库名称，默认设置了编码信息
     def connect(self):
         try:
-            self.db = pymysql.connect(
+            self.conn = pymysql.connect(
                 host=self.host,
                 port=self.port,
                 user=self.user,
                 password=self.passwd,
-                database=self.db,
+                database=self.database,
                 use_unicode=True,
                 charset='utf8mb4'
             )
-            self.cursor = self.db.cursor()
+            self.cursor = self.conn.cursor()
         except Exception as e:
             return e
 
@@ -32,7 +32,7 @@ class EasyMySQL():
     def close(self):
         try:
             self.cursor.close()
-            self.db.close()
+            self.conn.close()
         except Exception as e:
             return e
 
@@ -70,7 +70,7 @@ class EasyMySQL():
                     fields_list.append(item)
             else:
                 fields_sql = "select COLUMN_NAME from information_schema.COLUMNS where table_name = '%s' and table_schema = '%s'" % (
-                    table_name, self.db)
+                    table_name, self.conn)
                 fields = self.get_all(fields_sql)
                 for item in fields:
                     fields_list.append(item[0])
@@ -103,10 +103,13 @@ class EasyMySQL():
         try:
             self.connect()
             count = self.cursor.execute(sql)
-            self.db.commit()
+            self.conn.commit()
         except Exception as e:
             print(e)
-            self.db.rollback()
+            print('=' * 50)
+            print(sql)
+            print('=' * 50)
+            self.conn.rollback()
             count = 0
             self.close()
         return count
